@@ -79,22 +79,18 @@ for ixy = 1
         yb = yb(inds);
         rdata = rdata(inds);
 
-        output(i).rdata = rdata;
-
         % Filtered boundary
         x_filt = sgolayfilt(xb,ORDER,WINDOW); 
         y_filt = sgolayfilt(yb,ORDER,WINDOW);
 
-        output(i).boundary = [xb,yb];
-
         % Best fit circle to filtered boundary
-        [xc_f,yc_f,R_f,a] = circfit(x_filt,y_filt);
-        output(i).origin_fit = [xc_f,yc_f];
-        output(i).radius_fit = R_f;
+       [xc_f,yc_f,R_f,a] = circfit(x_filt,y_filt);
+       output(i).origin_fit = [xc_f,yc_f];
+       output(i).radius_fit = R_f
 
         % Find pixels in polygon
         IN = inpolygon(XX,YY,x_filt,y_filt);
-        
+
         
 
 

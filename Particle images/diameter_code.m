@@ -21,7 +21,7 @@ NumZStacks = 11;
 TimeInterval = 20; % minutes per time point
 TotalDuration = 20 * 69; % duration in minutes for 20+ hours
 NumTimePoints = ceil(TotalDuration / TimeInterval);
-
+    
 % Initialize tables to store radius and fluorescence data
 radius_data = table();
 fluorescence_data = table();
