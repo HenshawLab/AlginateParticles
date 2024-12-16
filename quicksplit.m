@@ -7,27 +7,6 @@ clc
 % indir = 'D:/Elisa/Outputs/IBIDI_061124/ProcessedData/Data/';
 outmain = 'D:/Elisa/Outputs/IBIDI_061124/ProcessedData/';
 
-% for i = 1:6
-%     mkdir([outmain 'Position_' sprintf('%02d',i) '/']);
-% end
-% 
-% for i = 1:151
-%     i
-% % for i = 1
-%     try
-%         load([indir 'frame_' sprintf('%04d',i) '.mat']);
-%     catch
-%         continue
-%     end
-%     OUT = output;
-%     for ix = 1:6
-%         output = OUT(ix);
-%         output.position = ix;
-%         save([outmain 'Position_' sprintf('%02d',ix) '/frame_' sprintf('%04d',i) '.mat']);
-%         clear output
-%     end
-% end
-
 datadir = 'D:/Elisa/Outputs/IBIDI_061124/ProcessedData/';
 
 radius_average = NaN(151,6);
@@ -52,3 +31,24 @@ for i = 1:151
 %         area
     end
 end
+
+% for i = 1:6
+%     mkdir([outmain 'Position_' sprintf('%02d',i) '/']);
+% end
+% 
+% for i = 1:151
+%     i
+% % for i = 1
+%     try
+%         load([indir 'frame_' sprintf('%04d',i) '.mat']);
+%     catch
+%         continue
+%     end
+%     OUT = output;
+%     for ix = 1:6
+%         output = OUT(ix);
+%         output.position = ix;
+%         save([outmain 'Position_' sprintf('%02d',ix) '/frame_' sprintf('%04d',i) '.mat']);
+%         clear output
+%     end
+% end
