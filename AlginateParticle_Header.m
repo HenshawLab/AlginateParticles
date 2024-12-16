@@ -61,6 +61,11 @@ else
     load([OutputDir 'ParticleOrigins.mat'],'XC','YC','filename');
 end
 
+%% Setup saving directories
+for i = 1:NumXY
+    mkdir([DataOutDir 'Position_' sprintf('%02d',i) '/'])
+end
+
 %% Main
 
 WB = waitbar(0,'Processing....');
@@ -75,7 +80,7 @@ for i = 116:NumT
 %     for ixy = 1
         % Get starting position of this particle
         xc = XC(ixy); yc = YC(ixy);
-        output(ixy).filename = filename;
+        output.filename = filename;
 
         % Get images and setup meshgrid
         img_bf = mat2gray(double(getPlane(bfr,znum(ixy),brightfieldChannel,i,ixy)));
@@ -96,7 +101,7 @@ for i = 116:NumT
             previous = mean(vq_bf(1:ind-1));
             next = mean(vq_bf(ind:end));
             ind2 = find(vq_bf(ind:end)<THRES,1,'first');
-            if size(ind2,1) == 0
+            if size(ind2,2) == 0
                 ind2 = ind;
             else
                 ind2 = ind2 + ind-1;
@@ -118,8 +123,8 @@ for i = 116:NumT
         rdata = rdata(inds);
         theta_b = theta(inds);
 
-        output(ixy).rdata = rdata;
-        output(ixy).theta_b = theta_b;
+        output.rdata = rdata;
+        output.theta_b = theta_b;
 
         % Filtered boundary
         if length(xb) < WINDOW
@@ -138,37 +143,41 @@ for i = 116:NumT
 
         x_filt = sgolayfilt(xb,ORDER,WINDOW); 
         y_filt = sgolayfilt(yb,ORDER,WINDOW);
-        output(ixy).boundary_filt = [x_filt;y_filt];
+        output.boundary_filt = [x_filt;y_filt];
 
         % Best fit circle to filtered boundary
         [xc_f,yc_f,R_f,a] = circfit(x_filt,y_filt);
-        output(ixy).origin_fit = [xc_f,yc_f];
-        output(ixy).radius_fit = R_f;
+        output.origin_fit = [xc_f,yc_f];
+        output.radius_fit = R_f;
 
         % Find radius to filtered boundary with fitted centre
         rdata_filt = sqrt((xc_f - x_filt).^2 + (yc_f - y_filt).^2);
-        output(ixy).rdata_filt = rdata_filt;
+        output.rdata_filt = rdata_filt;
 
         % Find pixels in polygon
         IN = inpolygon(XX,YY,x_filt,y_filt);
         fluor_all = img_fl(IN);
-        output(ixy).fluor_mean = mean(fluor_all(:));
+        output.fluor_mean = mean(fluor_all(:));
 
         % Make new boundary inside to define annulus
         xb_inner = xc + (rdata-dR).*cos(theta_b);
         yb_inner = yc + (rdata-dR).*sin(theta_b);
         xb_inner_filt = sgolayfilt(xb_inner,ORDER,WINDOW); 
         yb_inner_filt = sgolayfilt(yb_inner,ORDER,WINDOW);
-        output(ixy).innerboundary_filt = [xb_inner_filt;yb_inner_filt];
+        output.innerboundary_filt = [xb_inner_filt;yb_inner_filt];
 
         % Find pixels in inner area
         IN_INNER = inpolygon(XX,YY,xb_inner,yb_inner);
         annulus = img_fl(IN == 1 & IN_INNER ~= 1);
-        output(ixy).annulus_mean = mean(annulus(:));     
+        output.annulus_mean = mean(annulus(:));     
 
         % Areas
-        output(ixy).particle_area = area(polyshape(x_filt,y_filt));
-        output(ixy).annulus_area = output(ixy).particle_area - area(polyshape(xb_inner_filt,yb_inner_filt));
+        output.particle_area = area(polyshape(x_filt,y_filt));
+        output.annulus_area = output.particle_area - area(polyshape(xb_inner_filt,yb_inner_filt));
+        
+        % Saving
+        save([DataOutDir 'Position_' sprintf('%02d',i) '/frame_' sprintf('%04d',i) '.mat'],...
+                'output','filename','params');
 
         %% Figure making
         figure(1);
@@ -182,8 +191,8 @@ for i = 116:NumT
 
         if ixy == Positions(end)
             sgtitle([filename ' frame:' num2str(i)],'Interpreter','None');
-            save([DataOutDir 'Data/frame_' sprintf('%04d',i) '.mat'],...
-                'output','filename','params')
+%             save([DataOutDir 'Data/frame_' sprintf('%04d',i) '.mat'],...
+%                 'output','filename','params')
             saveas(gcf,[ImageFigDir 'frame_' sprintf('%04d',i) '.fig'])
             set(gcf,'Position',get(0,'ScreenSize'));
             saveas(gcf,[ImagePNGDir 'frame_' sprintf('%04d',i) '.png'])
@@ -194,6 +203,5 @@ for i = 116:NumT
         
     end % End of looping over time
 end % End of looping over XY
-
 
 
